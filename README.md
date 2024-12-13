@@ -41,4 +41,4 @@ pip install pillow
 ```python
 python control.py
 ```
-
+Или дважды мышкой нажмите на файл
