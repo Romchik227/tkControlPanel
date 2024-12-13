@@ -26,7 +26,7 @@
 
 Установить Pillow можно с помощью pip:
 
-```sh
+\```sh
 pip install pillow
 \```
 
@@ -34,17 +34,17 @@ pip install pillow
 
 1. Скачайте репозиторий:
 
-```sh
+\```sh
 git clone https://github.com/ваш-проект/tkControlPanel.git
 \```
 
 2. Перейдите в директорию проекта:
-```sh
+\```sh
 cd tkControlPanel
 \```
 
 3. Запустите программу:
-```sh
+\```sh
 python main.py
 \```
 
