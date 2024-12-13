@@ -28,7 +28,7 @@
 
 ```python
 pip install pillow
-\```
+```
 
 ## Установка и запуск
 
@@ -36,15 +36,15 @@ pip install pillow
 
 ```python
 git clone https://github.com/ваш-проект/tkControlPanel.git
-\```
+```
 
 2. Перейдите в директорию проекта:
 ```python
 cd tkControlPanel
-\```
+```
 
 3. Запустите программу:
 ```python
 python main.py
-\```
+```
 
