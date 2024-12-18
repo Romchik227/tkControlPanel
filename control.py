@@ -49,7 +49,7 @@ class ClassicWin95App:
         self.main_icon_label.pack(side=tk.LEFT, padx=5)
 
         # Загружаем иконку для главной панели
-        self.main_icon = self.load_icon(41)  # Основная иконка (дерево)
+        self.main_icon = self.load_icon(11)  # Основная иконка (дерево)
         if self.main_icon:
             self.main_icon_label.configure(image=self.main_icon)
             self.main_icon_label.image = self.main_icon
@@ -78,7 +78,7 @@ class ClassicWin95App:
 
     def load_icon(self, icon_index):
         """Загружает иконку из библиотеки shell32.dll по индексу и возвращает ее в формате Tkinter."""
-        dll_path = r"C:\\Windows\\System32\\shell32.dll"
+        dll_path = r"C:\\Windows\\System32\\netcenter.dll"
         
         # Получаем дескриптор иконки
         hicon = ctypes.windll.shell32.ExtractIconW(0, dll_path, icon_index)
@@ -144,15 +144,15 @@ class ClassicWin95App:
     def create_control_panel(self, content_frame):
         # Создаем панель управления (несколько иконок и текстов)
         panel_items = [
-            ("Параметры", 41),
-            ("Администрирование", 42),
-            ("Настройки системы", 43),
-            ("Обслуживание", 44),
-            ("Программы", 45),
-            ("Сеть", 46),
-            ("Звук и мультимедиа", 47),
-            ("Дата и время", 48),
-            ("Региональные параметры", 49),
+            ("Параметры", 1),
+            ("Администрирование", 2),
+            ("Настройки системы", 3),
+            ("Обслуживание", 4),
+            ("Программы", 10),
+            ("Сеть", 6),
+            ("Звук и мультимедиа", 7),
+            ("Дата и время", 9),
+            ("Региональные параметры", 11),
         ]
 
         self.selected_icon_label = None  # Сохраняем ссылку на выбранную иконку
