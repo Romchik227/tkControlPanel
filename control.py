@@ -48,6 +48,7 @@ class ClassicWin95App:
         self.main_icon_label = tk.Label(top_frame, bg="lightgray")
         self.main_icon_label.pack(side=tk.LEFT, padx=5)
 
+        # Загружаем иконку для главной панели
         self.main_icon = self.load_icon(41)  # Основная иконка (дерево)
         if self.main_icon:
             self.main_icon_label.configure(image=self.main_icon)
@@ -76,19 +77,26 @@ class ClassicWin95App:
         tk.Button(about_window, text="Закрыть", command=about_window.destroy).pack(pady=10)
 
     def load_icon(self, icon_index):
+        """Загружает иконку из библиотеки shell32.dll по индексу и возвращает ее в формате Tkinter."""
         dll_path = r"C:\\Windows\\System32\\shell32.dll"
+        
+        # Получаем дескриптор иконки
         hicon = ctypes.windll.shell32.ExtractIconW(0, dll_path, icon_index)
-
         if hicon:
+            # Получаем DC (Device Context) для рендеринга
             hdc = ctypes.windll.user32.GetDC(0)
             hdc_mem = ctypes.windll.gdi32.CreateCompatibleDC(hdc)
             bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(hdc, 32, 32)
             old_bmp = ctypes.windll.gdi32.SelectObject(hdc_mem, bmp)
+
+            # Рисуем иконку на созданном контексте
             ctypes.windll.user32.DrawIconEx(hdc_mem, 0, 0, hicon, 32, 32, 0, 0, 0x0003)
+
+            # Возвращаем старый объект в DC
             ctypes.windll.gdi32.SelectObject(hdc_mem, old_bmp)
             ctypes.windll.user32.ReleaseDC(0, hdc)
 
-            # Создаем структуру BITMAPINFOHEADER
+            # Создаем структуру BITMAPINFOHEADER для получения данных изображения
             class BITMAPINFOHEADER(ctypes.Structure):
                 _fields_ = [
                     ("biSize", ctypes.c_uint32),
@@ -111,19 +119,25 @@ class ClassicWin95App:
             bih.biPlanes = 1
             bih.biBitCount = 32
             bih.biCompression = 0  # BI_RGB
-            bih.biSizeImage = 32 * 32 * 4
+            bih.biSizeImage = 32 * 32 * 4  # 32x32 пикселя, 4 байта на пиксель
 
+            # Создаем буфер для изображения
             bits = ctypes.create_string_buffer(bih.biSizeImage)
+
+            # Получаем данные изображения в буфер
             ctypes.windll.gdi32.GetDIBits(hdc_mem, bmp, 0, 32, bits, bih, 0)
 
-            image = Image.frombuffer('RGBA', (32, 32), bits, 'raw', 'BGRA', 0, 1)
+            # Преобразуем данные в байтовую строку
+            byte_data = bytes(bits)
+
+            # Создаем изображение из данных
+            image = Image.frombytes('RGBA', (32, 32), byte_data, 'raw', 'BGRA', 0, 1)
+
+            # Поворачиваем изображение
             image = image.transpose(Image.FLIP_TOP_BOTTOM)
 
-            img_path = "icon_temp.bmp"
-            image.save(img_path)
-
-            img = Image.open(img_path)
-            return ImageTk.PhotoImage(img)
+            # Преобразуем изображение в формат, пригодный для Tkinter
+            return ImageTk.PhotoImage(image)
 
         return None
 
@@ -131,14 +145,14 @@ class ClassicWin95App:
         # Создаем панель управления (несколько иконок и текстов)
         panel_items = [
             ("Параметры", 41),
-            ("Администрирование", 41),
-            ("Настройки системы", 41),
-            ("Обслуживание", 41),
-            ("Программы", 41),
-            ("Сеть", 41),
-            ("Звук и мультимедиа", 41),
-            ("Дата и время", 41),
-            ("Региональные параметры", 41),
+            ("Администрирование", 42),
+            ("Настройки системы", 43),
+            ("Обслуживание", 44),
+            ("Программы", 45),
+            ("Сеть", 46),
+            ("Звук и мультимедиа", 47),
+            ("Дата и время", 48),
+            ("Региональные параметры", 49),
         ]
 
         self.selected_icon_label = None  # Сохраняем ссылку на выбранную иконку
@@ -146,21 +160,22 @@ class ClassicWin95App:
         row, col = 0, 0
         for text, icon_index in panel_items:
             icon = self.load_icon(icon_index)
-            icon_label = tk.Label(content_frame, image=icon, bg="white")
-            icon_label.image = icon  # Сохраняем ссылку на изображение
+            if icon:
+                icon_label = tk.Label(content_frame, image=icon, bg="white")
+                icon_label.image = icon  # Сохраняем ссылку на изображение
 
-            # Добавляем обработчик нажатий
-            icon_label.bind("<Button-1>", lambda event, label=icon_label, text=text: self.on_icon_click(event, label, text))
+                # Добавляем обработчик нажатий
+                icon_label.bind("<Button-1>", lambda event, label=icon_label, text=text: self.on_icon_click(event, label, text))
 
-            icon_label.grid(row=row, column=col, padx=10, pady=10)
+                icon_label.grid(row=row, column=col, padx=10, pady=10)
 
-            label = tk.Label(content_frame, text=text, bg="white", font=("Arial", 10))
-            label.grid(row=row+1, column=col, padx=10)
+                label = tk.Label(content_frame, text=text, bg="white", font=("Arial", 10))
+                label.grid(row=row+1, column=col, padx=10)
 
-            col += 1
-            if col > 2:  # Убираем на новую строку после 3-х элементов
-                col = 0
-                row += 2
+                col += 1
+                if col > 2:  # Убираем на новую строку после 3-х элементов
+                    col = 0
+                    row += 2
 
     def on_icon_click(self, event, label, text):
         # Снимаем выделение с предыдущей иконки, если она была выбрана
@@ -179,7 +194,5 @@ class ClassicWin95App:
 if __name__ == "__main__":
     root = tk.Tk()
     app = ClassicWin95App(root)
-    # Устанавливаем возможность изменения размера окна
     root.resizable(True, True)
-    # Запуск основного цикла обработки событий
     root.mainloop()
