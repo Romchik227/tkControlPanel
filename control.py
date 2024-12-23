@@ -4,10 +4,10 @@ from tkinter import messagebox
 import ctypes
 from PIL import Image, ImageTk
 
-class ClassicWin95App:
+class ClassicWinNTApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Моя Программа")
+        self.root.title("Программа")
         self.root.geometry("500x250")
 
         # Добавляем уголок для изменения размера
@@ -49,7 +49,7 @@ class ClassicWin95App:
         self.main_icon_label.pack(side=tk.LEFT, padx=5)
 
         # Загружаем иконку для главной панели
-        self.main_icon = self.load_icon(8)  # Основная иконка (дерево)
+        self.main_icon = self.load_icon(8)  # Основная иконка
         if self.main_icon:
             self.main_icon_label.configure(image=self.main_icon)
             self.main_icon_label.image = self.main_icon
@@ -73,11 +73,11 @@ class ClassicWin95App:
             icon_label.configure(image=self.main_icon)
             icon_label.image = self.main_icon
 
-        tk.Label(about_window, text="Моя Программа\nВерсия 1.0\nКлассический стиль Windows 95.", bg="lightgray").pack(pady=10)
+        tk.Label(about_window, text="Программа\nВерсия 1.3\nКлассический стиль Windows NT.", bg="lightgray").pack(pady=10)
         tk.Button(about_window, text="Закрыть", command=about_window.destroy).pack(pady=10)
 
     def load_icon(self, icon_index):
-        """Загружает иконку из библиотеки shell32.dll по индексу и возвращает ее в формате Tkinter."""
+        """Загружает иконку из библиотеки .dll по индексу и возвращает ее в формате Tkinter."""
         dll_path = r"C:\\Windows\\System32\\netcenter.dll"
         
         # Получаем дескриптор иконки
@@ -193,6 +193,6 @@ class ClassicWin95App:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = ClassicWin95App(root)
+    app = ClassicWinNTApp(root)
     root.resizable(True, True)
     root.mainloop()
