@@ -49,7 +49,7 @@ class ClassicWin95App:
         self.main_icon_label.pack(side=tk.LEFT, padx=5)
 
         # Загружаем иконку для главной панели
-        self.main_icon = self.load_icon(11)  # Основная иконка (дерево)
+        self.main_icon = self.load_icon(8)  # Основная иконка (дерево)
         if self.main_icon:
             self.main_icon_label.configure(image=self.main_icon)
             self.main_icon_label.image = self.main_icon
@@ -148,11 +148,11 @@ class ClassicWin95App:
             ("Администрирование", 2),
             ("Настройки системы", 3),
             ("Обслуживание", 4),
-            ("Программы", 10),
+            ("Программы", 5),
             ("Сеть", 6),
             ("Звук и мультимедиа", 7),
-            ("Дата и время", 9),
-            ("Региональные параметры", 11),
+            ("Дата и время", 8),
+            ("Региональные параметры", 9),
         ]
 
         self.selected_icon_label = None  # Сохраняем ссылку на выбранную иконку
