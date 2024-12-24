@@ -1,7 +1,7 @@
 ![control.py](tkControlPanel_v1.5_large_icons.png)
 ![bonus.py](NetworkMapApp_v1.1_large_icons.png)
 
-### README for Version 1.5
+### README for tkControlPanel version 1.5 and NetworkMapApp version 1.1 (bonus)
 
 # tkControlPanel
 
