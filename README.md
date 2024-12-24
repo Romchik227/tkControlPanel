@@ -1,4 +1,5 @@
 ![control.py](tkControlPanel_v1.5_large_icons.png)
+![bonus.py](NetworkMapApp_v1.1_large_icons.png)
 
 ### README for Version 1.5
 
@@ -21,6 +22,7 @@ tkControlPanel – это Python-программа, которая пытает
   - Большой (48x48)
   - Маленький (24x24)
 - Можно использовать в качестве макета панели управления по вашему желанию.
+- **Бонус:** Программа NetworkMapApp 1.1 для визуализации сети с возможностью настройки иконок.
 
 ## Зависимости
 
@@ -49,3 +51,9 @@ pip install pillow
 python control.py
 ```
 Или дважды щелкните на файл `control.py`.
+
+1. Запуск бонусной программы:
+```python
+python bonus.py
+```
+Или дважды щелкните на файл `bonus.py`.
