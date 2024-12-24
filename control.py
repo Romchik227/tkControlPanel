@@ -6,11 +6,6 @@ from PIL import Image, ImageTk
 
 class ClassicWinNTApp:
     def __init__(self, root):
-        """
-        Инициализирует приложение, устанавливает параметры окна и создает элементы интерфейса.
-
-        :param root: Основное окно tkinter.
-        """
         self.root = root
         self.root.title("Программа")
         self.root.geometry("500x250")
@@ -28,13 +23,16 @@ class ClassicWinNTApp:
         # Верхняя рамка с основной иконкой и текстом
         self.create_top_frame()
 
-        # Основное содержимое (панель управления)
-        self.create_content_frame()
+        # Создание фреймов для разных размеров иконок
+        self.frames = {}
+        self.icon_sizes = [32, 48, 24]
+        for size in self.icon_sizes:
+            self.frames[size] = self.create_content_frame(size)
+
+        # Показываем фрейм с иконками по умолчанию
+        self.show_frame(32)
 
     def create_menu(self):
-        """
-        Создает меню приложения.
-        """
         menu_bar = tk.Menu(self.root)
 
         file_menu = tk.Menu(menu_bar, tearoff=0)
@@ -49,8 +47,9 @@ class ClassicWinNTApp:
         menu_bar.add_cascade(label="Правка", menu=edit_menu)
 
         view_menu = tk.Menu(menu_bar, tearoff=0)
-        view_menu.add_command(label="Увеличить")
-        view_menu.add_command(label="Уменьшить")
+        view_menu.add_command(label="Стандартный", command=lambda: self.show_frame(32))
+        view_menu.add_command(label="Большой", command=lambda: self.show_frame(48))
+        view_menu.add_command(label="Маленький", command=lambda: self.show_frame(24))
         menu_bar.add_cascade(label="Вид", menu=view_menu)
 
         help_menu = tk.Menu(menu_bar, tearoff=0)
@@ -59,36 +58,33 @@ class ClassicWinNTApp:
 
         self.root.config(menu=menu_bar)
 
+    def show_frame(self, size):
+        """
+        Показывает фрейм с заданным размером иконок и скрывает остальные.
+        """
+        for s, frame in self.frames.items():
+            frame.pack_forget()
+        self.frames[size].pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.root.update_idletasks()
+
     def create_top_frame(self):
-        """
-        Создает верхнюю рамку с основной иконкой и текстом.
-        """
         top_frame = tk.Frame(self.root, bg="lightgray")
         top_frame.pack(side=tk.TOP, fill=tk.X)
 
-        # Основная иконка
         self.main_icon_label = tk.Label(top_frame, bg="lightgray")
         self.main_icon_label.pack(side=tk.LEFT, padx=5)
 
-        # Загружаем иконку для главной панели
-        self.main_icon = self.load_icon(8)  # Основная иконка
+        self.main_icon = self.load_icon(8)
         if self.main_icon:
             self.main_icon_label.configure(image=self.main_icon)
             self.main_icon_label.image = self.main_icon
 
-    def create_content_frame(self):
-        """
-        Создает основное содержимое (панель управления).
-        """
+    def create_content_frame(self, size):
         content_frame = tk.Frame(self.root, bg="white", relief=tk.SUNKEN, borderwidth=2)
-        content_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        self.create_control_panel(content_frame)
+        self.create_control_panel(content_frame, size)
+        return content_frame
 
     def show_about(self):
-        """
-        Показывает окно "О программе".
-        """
         about_window = tk.Toplevel(self.root)
         about_window.title("О программе")
         about_window.geometry("300x200")
@@ -101,26 +97,20 @@ class ClassicWinNTApp:
             icon_label.configure(image=self.main_icon)
             icon_label.image = self.main_icon
 
-        tk.Label(about_window, text="Программа\nВерсия 1.4-tc\nКлассический стиль Windows NT.", bg="lightgray").pack(pady=10)
+        tk.Label(about_window, text="Программа\nВерсия 1.5\nКлассический стиль Windows NT.", bg="lightgray").pack(pady=10)
         tk.Button(about_window, text="Закрыть", command=about_window.destroy).pack(pady=10)
 
-    def load_icon(self, icon_index):
-        """
-        Загружает иконку из библиотеки .dll по индексу и возвращает ее в формате Tkinter.
-
-        :param icon_index: Индекс иконки в библиотеке .dll.
-        :return: Изображение в формате Tkinter или None, если загрузка не удалась.
-        """
+    def load_icon(self, icon_index, size=32):
         try:
             dll_path = r"C:\\Windows\\System32\\netcenter.dll"
             hicon = ctypes.windll.shell32.ExtractIconW(0, dll_path, icon_index)
             if hicon:
                 hdc = ctypes.windll.user32.GetDC(0)
                 hdc_mem = ctypes.windll.gdi32.CreateCompatibleDC(hdc)
-                bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(hdc, 32, 32)
+                bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(hdc, size, size)
                 old_bmp = ctypes.windll.gdi32.SelectObject(hdc_mem, bmp)
 
-                ctypes.windll.user32.DrawIconEx(hdc_mem, 0, 0, hicon, 32, 32, 0, 0, 0x0003)
+                ctypes.windll.user32.DrawIconEx(hdc_mem, 0, 0, hicon, size, size, 0, 0, 0x0003)
                 ctypes.windll.gdi32.SelectObject(hdc_mem, old_bmp)
                 ctypes.windll.user32.ReleaseDC(0, hdc)
 
@@ -141,29 +131,24 @@ class ClassicWinNTApp:
 
                 bih = BITMAPINFOHEADER()
                 bih.biSize = ctypes.sizeof(BITMAPINFOHEADER)
-                bih.biWidth = 32
-                bih.biHeight = 32
+                bih.biWidth = size
+                bih.biHeight = size
                 bih.biPlanes = 1
                 bih.biBitCount = 32
                 bih.biCompression = 0  # BI_RGB
-                bih.biSizeImage = 32 * 32 * 4
+                bih.biSizeImage = size * size * 4
 
                 bits = ctypes.create_string_buffer(bih.biSizeImage)
-                ctypes.windll.gdi32.GetDIBits(hdc_mem, bmp, 0, 32, bits, bih, 0)
+                ctypes.windll.gdi32.GetDIBits(hdc_mem, bmp, 0, size, bits, bih, 0)
                 byte_data = bytes(bits)
-                image = Image.frombytes('RGBA', (32, 32), byte_data, 'raw', 'BGRA', 0, 1)
+                image = Image.frombytes('RGBA', (size, size), byte_data, 'raw', 'BGRA', 0, 1)
                 image = image.transpose(Image.FLIP_TOP_BOTTOM)
                 return ImageTk.PhotoImage(image)
         except Exception as e:
             messagebox.showerror("Ошибка загрузки иконки", f"Не удалось загрузить иконку: {e}")
         return None
 
-    def create_control_panel(self, content_frame):
-        """
-        Создает панель управления с иконками и текстом.
-
-        :param content_frame: Родительский фрейм для панели управления.
-        """
+    def create_control_panel(self, content_frame, size):
         panel_items = [
             ("Параметры", 1),
             ("Администрирование", 2),
@@ -180,7 +165,7 @@ class ClassicWinNTApp:
 
         row, col = 0, 0
         for text, icon_index in panel_items:
-            icon = self.load_icon(icon_index)
+            icon = self.load_icon(icon_index, size)
             if icon:
                 icon_label = tk.Label(content_frame, image=icon, bg="white")
                 icon_label.image = icon
@@ -196,13 +181,6 @@ class ClassicWinNTApp:
                     row += 2
 
     def on_icon_click(self, event, label, text):
-        """
-        Обработчик нажатий на иконки в панели управления.
-
-        :param event: Событие нажатия.
-        :param label: Нажатая иконка.
-        :param text: Текст, связанный с иконкой.
-        """
         if self.selected_icon_label and self.selected_icon_label != label:
             self.selected_icon_label.configure(bg="white", relief=tk.FLAT)
 
