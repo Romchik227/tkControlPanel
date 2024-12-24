@@ -1,3 +1,5 @@
+![control.py](tkControlPanel_v1.5_large_icons.png)
+
 ### README for Version 1.5
 
 # tkControlPanel
