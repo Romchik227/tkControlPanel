@@ -1,4 +1,6 @@
 import tkinter as tk
+import ctypes
+from PIL import Image, ImageTk
 
 class NetworkMapApp:
     def __init__(self, root):
@@ -22,13 +24,98 @@ class NetworkMapApp:
             ("Node1", "Node3")
         ]
 
+        self.icon_index = 8  # Default icon index
+        self.icon_size = 32  # Default icon size
+        self.icon = self.load_icon(self.icon_index, self.icon_size)
+
+        self.create_menu()
         self.draw_network(nodes, connections)
+
+    def create_menu(self):
+        menu_bar = tk.Menu(self.root)
+        view_menu = tk.Menu(menu_bar, tearoff=0)
+        view_menu.add_command(label="Стандартный", command=lambda: self.set_icon(8, 32))
+        view_menu.add_command(label="Большой", command=lambda: self.set_icon(8, 48))
+        view_menu.add_command(label="Маленький", command=lambda: self.set_icon(8, 24))
+        menu_bar.add_cascade(label="Вид", menu=view_menu)
+        self.root.config(menu=menu_bar)
+
+    def set_icon(self, icon_index, size):
+        self.icon_index = icon_index
+        self.icon_size = size
+        self.icon = self.load_icon(icon_index, size)
+        self.canvas.delete("all")
+        nodes = {
+            "Node1": (100, 100),
+            "Node2": (300, 100),
+            "Node3": (200, 300),
+            "Node4": (500, 400)
+        }
+        connections = [
+            ("Node1", "Node2"),
+            ("Node2", "Node3"),
+            ("Node3", "Node4"),
+            ("Node1", "Node3")
+        ]
+        self.draw_network(nodes, connections)
+
+    def load_icon(self, icon_index, size=32):
+        try:
+            dll_path = r"C:\\Windows\\System32\\netcenter.dll"
+            hicon = ctypes.windll.shell32.ExtractIconW(0, dll_path, icon_index)
+            if hicon:
+                hdc = ctypes.windll.user32.GetDC(0)
+                hdc_mem = ctypes.windll.gdi32.CreateCompatibleDC(hdc)
+                bmp = ctypes.windll.gdi32.CreateCompatibleBitmap(hdc, size, size)
+                old_bmp = ctypes.windll.gdi32.SelectObject(hdc_mem, bmp)
+
+                ctypes.windll.user32.DrawIconEx(hdc_mem, 0, 0, hicon, size, size, 0, 0, 0x0003)
+                ctypes.windll.gdi32.SelectObject(hdc_mem, old_bmp)
+                ctypes.windll.user32.ReleaseDC(0, hdc)
+
+                class BITMAPINFOHEADER(ctypes.Structure):
+                    _fields_ = [
+                        ("biSize", ctypes.c_uint32),
+                        ("biWidth", ctypes.c_int32),
+                        ("biHeight", ctypes.c_int32),
+                        ("biPlanes", ctypes.c_uint16),
+                        ("biBitCount", ctypes.c_uint16),
+                        ("biCompression", ctypes.c_uint32),
+                        ("biSizeImage", ctypes.c_uint32),
+                        ("biXPelsPerMeter", ctypes.c_int32),
+                        ("biYPelsPerMeter", ctypes.c_int32),
+                        ("biClrUsed", ctypes.c_uint32),
+                        ("biClrImportant", ctypes.c_uint32)
+                    ]
+
+                bih = BITMAPINFOHEADER()
+                bih.biSize = ctypes.sizeof(BITMAPINFOHEADER)
+                bih.biWidth = size
+                bih.biHeight = size
+                bih.biPlanes = 1
+                bih.biBitCount = 32
+                bih.biCompression = 0  # BI_RGB
+                bih.biSizeImage = size * size * 4
+
+                bits = ctypes.create_string_buffer(bih.biSizeImage)
+                ctypes.windll.gdi32.GetDIBits(hdc_mem, bmp, 0, size, bits, bih, 0)
+                byte_data = bytes(bits)
+                image = Image.frombytes('RGBA', (size, size), byte_data, 'raw', 'BGRA', 0, 1)
+                image = image.transpose(Image.FLIP_TOP_BOTTOM)
+                return ImageTk.PhotoImage(image)
+        except Exception as e:
+            print(f"Не удалось загрузить иконку: {e}")
+        return None
 
     def draw_network(self, nodes, connections):
         node_radius = 20
 
         for node, (x, y) in nodes.items():
-            self.canvas.create_oval(x - node_radius, y - node_radius, x + node_radius, y + node_radius, fill="lightblue")
+            if self.icon:
+                self.canvas.create_image(x, y, image=self.icon)
+                self.canvas.image = self.icon  # Keep a reference to the icon to prevent garbage collection
+            else:
+                self.canvas.create_oval(x - node_radius, y - node_radius, x + node_radius, y + node_radius, fill="lightblue")
             self.canvas.create_text(x, y, text=node, font=("Arial", 12, "bold"))
 
         for node1, node2 in connections:
@@ -38,8 +125,6 @@ class NetworkMapApp:
                 self.canvas.create_line(x1, y1, x2, y2)
             else:
                 print(f"One of the nodes {node1} or {node2} does not exist.")
-                # Or add logging:
-                # logging.error(f"One of the nodes {node1} or {node2} does not exist.")
 
 if __name__ == "__main__":
     root = tk.Tk()
