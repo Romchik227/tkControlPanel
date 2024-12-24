@@ -101,7 +101,7 @@ class ClassicWinNTApp:
             icon_label.configure(image=self.main_icon)
             icon_label.image = self.main_icon
 
-        tk.Label(about_window, text="Программа\nВерсия 1.4\nКлассический стиль Windows NT.", bg="lightgray").pack(pady=10)
+        tk.Label(about_window, text="Программа\nВерсия 1.4-tc\nКлассический стиль Windows NT.", bg="lightgray").pack(pady=10)
         tk.Button(about_window, text="Закрыть", command=about_window.destroy).pack(pady=10)
 
     def load_icon(self, icon_index):
