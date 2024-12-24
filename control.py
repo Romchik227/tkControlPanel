@@ -55,7 +55,7 @@ class ClassicWinNTApp:
 
         help_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu.add_command(label="О программе", command=self.show_about)
-        menu_bar.add_cascade(label="Помощь", menu=help_menu)
+        menu_bar.add_cascade(label="Справка", menu=help_menu)
 
         self.root.config(menu=menu_bar)
 
