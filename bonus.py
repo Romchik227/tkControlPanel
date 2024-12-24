@@ -24,9 +24,14 @@ class NetworkMapApp:
             ("Node1", "Node3")
         ]
 
-        self.icon_index = 8  # Default icon index
         self.icon_size = 32  # Default icon size
-        self.icon = self.load_icon(self.icon_index, self.icon_size)
+        node_icon_map = {
+            "Node1": 2,  # Assign icon index 2 to Node1
+            "Node2": 3,  # Assign icon index 3 to Node2
+            "Node3": 4,  # Assign icon index 4 to Node3
+            "Node4": 8   # Assign icon index 5 to Node4
+        }
+        self.icons = {node: self.load_icon(icon_index, self.icon_size) for node, icon_index in node_icon_map.items()}
 
         self.create_menu()
         self.draw_network(nodes, connections)
@@ -34,16 +39,21 @@ class NetworkMapApp:
     def create_menu(self):
         menu_bar = tk.Menu(self.root)
         view_menu = tk.Menu(menu_bar, tearoff=0)
-        view_menu.add_command(label="Стандартный", command=lambda: self.set_icon(8, 32))
-        view_menu.add_command(label="Большой", command=lambda: self.set_icon(8, 48))
-        view_menu.add_command(label="Маленький", command=lambda: self.set_icon(8, 24))
+        view_menu.add_command(label="Стандартный", command=lambda: self.set_icon_size(32))
+        view_menu.add_command(label="Большой", command=lambda: self.set_icon_size(48))
+        view_menu.add_command(label="Маленький", command=lambda: self.set_icon_size(24))
         menu_bar.add_cascade(label="Вид", menu=view_menu)
         self.root.config(menu=menu_bar)
 
-    def set_icon(self, icon_index, size):
-        self.icon_index = icon_index
+    def set_icon_size(self, size):
         self.icon_size = size
-        self.icon = self.load_icon(icon_index, size)
+        node_icon_map = {
+            "Node1": 2,
+            "Node2": 3,
+            "Node3": 4,
+            "Node4": 8
+        }
+        self.icons = {node: self.load_icon(icon_index, size) for node, icon_index in node_icon_map.items()}
         self.canvas.delete("all")
         nodes = {
             "Node1": (100, 100),
@@ -111,9 +121,10 @@ class NetworkMapApp:
         node_radius = 20
 
         for node, (x, y) in nodes.items():
-            if self.icon:
-                self.canvas.create_image(x, y, image=self.icon)
-                self.canvas.image = self.icon  # Keep a reference to the icon to prevent garbage collection
+            icon = self.icons.get(node)
+            if icon:
+                self.canvas.create_image(x, y, image=icon)
+                self.canvas.image = icon  # Keep a reference to the icon to prevent garbage collection
             else:
                 self.canvas.create_oval(x - node_radius, y - node_radius, x + node_radius, y + node_radius, fill="lightblue")
             self.canvas.create_text(x, y, text=node, font=("Arial", 12, "bold"))
